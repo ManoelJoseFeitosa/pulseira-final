@@ -24,6 +24,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/dashboard/chart-data', [DashboardController::class, 'getChartData'])
     ->middleware(['auth'])->name('dashboard.chart-data');
 
+// ROTA DE API para os dados do RELATÓRIO por período
+Route::get('/dashboard/report-data', [DashboardController::class, 'getReportData'])
+    ->middleware(['auth'])->name('dashboard.report-data');
+
 // Rota ADICIONADA DE VOLTA para exibir a página do Simulador
 Route::get('/simulator/{device:device_uuid}', [SimulatorController::class, 'show'])->name('simulator.show');
 

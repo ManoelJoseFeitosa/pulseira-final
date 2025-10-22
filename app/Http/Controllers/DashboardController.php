@@ -74,4 +74,45 @@ class DashboardController extends Controller
             'latestReadings'  => $latestReadings,
         ]);
     }
+
+    /**
+ * Busca dados históricos para o relatório por período.
+ */
+public function getReportData(Request $request)
+{
+    // Valida se as datas foram enviadas e estão no formato correto
+    $validated = $request->validate([
+        'start_date' => 'required|date_format:Y-m-d',
+        'end_date'   => 'required|date_format:Y-m-d',
+    ]);
+
+    $user = Auth::user();
+    $startDate = $validated['start_date'] . ' 00:00:00';
+    $endDate = $validated['end_date'] . ' 23:59:59';
+
+    // Query principal para buscar os dados no período
+    $query = SensorReading::whereHas('device.patient', function ($q) use ($user) {
+        $q->where('tenant_id', $user->tenant_id);
+    })->whereBetween('timestamp', [$startDate, $endDate]);
+
+    // Clona a query para fazer cálculos sem afetar a busca principal
+    $statsQuery = clone $query;
+
+    // Calcula as estatísticas
+    $statistics = [
+        'total_readings'    => $statsQuery->count(),
+        'avg_temperature'   => round($statsQuery->avg('temperature'), 2),
+        'max_stress'        => $statsQuery->max('gsr_value'),
+        'attention_alerts'  => $statsQuery->where('status_level', 'atencao')->count(),
+        'high_stress_alerts' => $statsQuery->where('status_level', 'alerta_vermelho')->count(),
+    ];
+
+    // Busca os registros detalhados, ordenados por data
+    $detailedReadings = $query->with('device.patient')->latest('timestamp')->get();
+
+    return response()->json([
+        'statistics' => $statistics,
+        'readings' => $detailedReadings,
+    ]);
+}
 }

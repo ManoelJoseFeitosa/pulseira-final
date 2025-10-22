@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador de Pulseira Autism Watc</title>
+    <title>Simulador de Pulseira Autism Watch</title>
     
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
         body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 2rem; background-color: #f4f4f9; }
-        .simulator { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
+        .simulator { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 500px; }
         h1 { color: #333; }
-        small { color: #777; font-family: monospace; }
-        .buttons { margin-top: 1.5rem; display: flex; gap: 1rem; }
+        small { color: #777; font-family: monospace; word-break: break-all; }
+        .buttons { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; }
         button { padding: 0.8rem 1.5rem; border: none; border-radius: 5px; color: white; font-size: 1rem; cursor: pointer; transition: transform 0.2s; }
         button:hover { transform: scale(1.05); }
         .normal { background-color: #28a745; }
         .atencao { background-color: #ffc107; color: #333; }
         .alerta { background-color: #dc3545; }
-        #response { margin-top: 1.5rem; padding: 1rem; background: #e9ecef; border-radius: 5px; min-width: 400px; text-align: left; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+        #response { margin-top: 1.5rem; padding: 1rem; background: #e9ecef; border-radius: 5px; min-width: 100%; text-align: left; font-family: monospace; white-space: pre-wrap; word-break: break-all; box-sizing: border-box; }
+        
+        /* Estilo para a imagem da pulseira */
+        .watch-image-container {
+            margin-top: 2.5rem; /* 40px */
+            max-width: 400px;
+            width: 100%;
+        }
+        .watch-image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
 
     <div class="simulator">
-        <h1>Simulador de Pulseira Autism Watc</h1>
+        <h1>Simulador de Pulseira Autism Watch</h1>
         <p>Enviando dados para o dispositivo:</p>
         <small>{{ $device->device_uuid }}</small>
 
@@ -35,6 +48,10 @@
         </div>
 
         <div id="response">Aguardando envio...</div>
+    </div>
+
+    <div class="watch-image-container">
+        <img src="{{ asset('images/autismwatch.png') }}" alt="Pulseira Autism Watch">
     </div>
 
     <script>
@@ -66,7 +83,6 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
-                        // PARTE 2: ENVIANDO O TOKEN PARA O SERVIDOR
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify(dataPayload)
