@@ -95,16 +95,15 @@ public function getReportData(Request $request)
         $q->where('tenant_id', $user->tenant_id);
     })->whereBetween('timestamp', [$startDate, $endDate]);
 
-    // Clona a query para fazer cálculos sem afetar a busca principal
-    $statsQuery = clone $query;
-
-    // Calcula as estatísticas
+    // **** CORREÇÃO AQUI ****
+    // Agora, para cada estatística, nós clonamos a query original
+    // para garantir que os filtros não se acumulem.
     $statistics = [
-        'total_readings'    => $statsQuery->count(),
-        'avg_temperature'   => round($statsQuery->avg('temperature'), 2),
-        'max_stress'        => $statsQuery->max('gsr_value'),
-        'attention_alerts'  => $statsQuery->where('status_level', 'atencao')->count(),
-        'high_stress_alerts' => $statsQuery->where('status_level', 'alerta_vermelho')->count(),
+        'total_readings'    => (clone $query)->count(),
+        'avg_temperature'   => round((clone $query)->avg('temperature'), 2),
+        'max_stress'        => (clone $query)->max('gsr_value'),
+        'attention_alerts'  => (clone $query)->where('status_level', 'atencao')->count(),
+        'high_stress_alerts' => (clone $query)->where('status_level', 'alerta_vermelho')->count(),
     ];
 
     // Busca os registros detalhados, ordenados por data
